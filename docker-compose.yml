@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+  mysql:
+    container_name: board
+    image: mysql/mysql-server:8.0.23
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: "board_db"
+      MYSQL_USER: "jaeil"
+      MYSQL_PASSWORD: "jaeil"
+    ports:
+      - "3306:3306"
+    command:
+      - "mysqld"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
