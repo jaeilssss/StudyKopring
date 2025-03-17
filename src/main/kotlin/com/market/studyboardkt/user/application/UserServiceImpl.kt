@@ -2,6 +2,7 @@ package com.market.studyboardkt.user.application
 
 import com.market.studyboardkt.setting.common.exception.ErrorException
 import com.market.studyboardkt.setting.common.exception.enum.UserErrorEnum
+import com.market.studyboardkt.setting.common.jwt.JwtProvider
 import com.market.studyboardkt.user.application.dto.request.LoginDto
 import com.market.studyboardkt.user.application.dto.request.SignUpDto
 import com.market.studyboardkt.user.application.dto.response.LoginResponseDto
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service
 class UserServiceImpl(
     private val userDomainService: UserDomainService,
     private val userRepository: UserRepository,
+    private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder
 ) : UserService {
     override fun signUp(request: SignUpDto) {
@@ -32,7 +34,7 @@ class UserServiceImpl(
 
         user.checkPassword(request.password, passwordEncoder)
 
-        val tokenResponse = userDomainService.createToken(user.id, user.email)
+        val tokenResponse = jwtProvider.createToken(user.id, user.email)
         return LoginResponseDto(tokenResponse.accessToken, tokenResponse.refreshToken)
 
     }

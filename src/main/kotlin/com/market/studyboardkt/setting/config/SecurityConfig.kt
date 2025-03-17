@@ -1,5 +1,8 @@
 package com.market.studyboardkt.setting.config
 
+import com.market.studyboardkt.setting.common.jwt.JwtProvider
+import com.market.studyboardkt.setting.filter.JwtAuthenticationFilter
+import com.market.studyboardkt.setting.filter.JwtExceptionFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -9,10 +12,11 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(val jwtProvider: JwtProvider) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
@@ -34,6 +38,8 @@ class SecurityConfig {
                 ).permitAll()
                 it.anyRequest().authenticated()
             }
+            .addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtExceptionFilter(), JwtAuthenticationFilter::class.java)
             .build()
 }
 

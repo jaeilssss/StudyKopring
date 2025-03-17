@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class SwaggerConfig {
+
     @Bean
     fun openAPI(): OpenAPI {
         val securityRequired = SecurityRequirement().addList("Bearer Token")
@@ -17,7 +18,13 @@ class SwaggerConfig {
             .type(SecurityScheme.Type.APIKEY)
             .`in`(SecurityScheme.In.HEADER)
             .name("Authorization")
-        return OpenAPI().components(Components()).info(apiInfo()).components(Components().addSecuritySchemes("Bearer Token", apiKey)).addSecurityItem(securityRequired)
+        return OpenAPI()
+            .components(Components())
+            .info(apiInfo())
+            .components(
+                Components().addSecuritySchemes("Bearer Token", apiKey)
+            )
+            .addSecurityItem(securityRequired)
     }
 
     private fun apiInfo(): Info = Info().title("API TEST").description("test").version("1.0.0")

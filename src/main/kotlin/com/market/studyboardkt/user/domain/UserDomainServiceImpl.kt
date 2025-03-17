@@ -27,34 +27,5 @@ class UserDomainServiceImpl(
         }
     }
 
-    override fun createToken(userId: Long, email: String): JwtTokenResponse {
-        val claims = Jwts.claims()
 
-        claims[jwtProperties.headers] = email
-        val now = Date().time
-
-        val accessExpiration = Date(now + jwtProperties.expiration)
-        val refreshExpiration = Date(now + jwtProperties.refreshExpiration)
-
-        val accessToken = Jwts.builder()
-            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-            .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(accessExpiration)
-            .setSubject(email)
-            .claim("userId", userId)
-            .signWith(SignatureAlgorithm.HS256, getKey(jwtProperties.secretKey))
-            .compact()
-
-        val refreshToken = Jwts.builder()
-            .setExpiration(refreshExpiration)
-            .signWith(SignatureAlgorithm.HS256, getKey(jwtProperties.secretKey))
-            .compact()
-
-        return JwtTokenResponse(accessToken, refreshToken)
-    }
-
-    private fun getKey(secretKey: String) : SecretKey {
-        val keyBytes = Decoders.BASE64.decode(secretKey.replace(" ", ""))
-        return Keys.hmacShaKeyFor(keyBytes)
-    }
 }
