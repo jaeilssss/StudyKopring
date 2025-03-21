@@ -5,11 +5,17 @@ import com.market.studyboardkt.setting.common.controller.BaseResponse
 import com.market.studyboardkt.user.application.UserService
 import com.market.studyboardkt.user.application.dto.request.LoginDto
 import com.market.studyboardkt.user.application.dto.response.LoginResponseDto
+import com.market.studyboardkt.user.application.dto.response.UserInfoResponseDto
+import com.market.studyboardkt.user.domain.dto.request.JwtProperties
 import com.market.studyboardkt.user.presentation.dto.LoginRequest
 import com.market.studyboardkt.user.presentation.dto.SignupRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpRequest
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -21,12 +27,14 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/user")
 @Tag(name = "User")
-class UserController(val userService: UserService) {
+class UserController(
+    val userService: UserService,
+    private val jwtProperties: JwtProperties,
+) {
 
     @PostMapping("/signup")
     @DisableSwaggerSecurity
-//    @SecurityRequirement(name = "")
-    @Operation(summary = "회원가입 API", description = "일반 유저가 회원가입 하는 API")
+    @Operation(summary = "회원가입 API", description = "일반 유저가 회원가입 하는 API", security = [])
     fun signUp(@RequestBody signUpRequest: SignupRequest): BaseResponse<String> {
         userService.signUp(signUpRequest.toSignUpDto())
         return BaseResponse<String>("OK", "회원가입이 성공적으로 완료했습니다.")
@@ -35,15 +43,29 @@ class UserController(val userService: UserService) {
     @PostMapping("/login")
     @DisableSwaggerSecurity
     @Operation(summary = "로그인 API", description ="로그인 API")
-    fun login(@RequestBody loginRequest: LoginRequest) : BaseResponse<LoginResponseDto> {
+    fun login(httpResponse: HttpServletResponse, @RequestBody loginRequest: LoginRequest) : BaseResponse<LoginResponseDto> {
         val result = userService.login(LoginDto(loginRequest.email, loginRequest.password))
+        val cookie = Cookie("refreshToken", result.refreshToken).apply {
+            isHttpOnly = true
+            secure = true
+            path = "/"
+            maxAge = jwtProperties.refreshExpiration.toInt()
+        }
+        httpResponse.addCookie(cookie)
         return BaseResponse("OK", result)
     }
 
     @GetMapping("/myInfo/{userId}")
-    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "내 정보 조회하기 API", description = "내 정보 조회하기")
-    fun getMyInfo(@PathVariable userId: Long) : String {
-        return "gdgd"
+    fun getUserInfo(@PathVariable userId: Long) : BaseResponse<UserInfoResponseDto> {
+        val result = userService.getUserInfo(userId)
+        return BaseResponse("Ok", result)
     }
+
+//    @PostMapping("/refresh/renew")
+//    @DisableSwaggerSecurity
+//    @Operation(summary = "토큰 재발급 API", description = "refresh Token 을 이용한 토큰 재발급")
+//    fun renewJwtToken(@RequestBody refreshToken: String) : BaseResponse<LoginResponseDto> {
+//
+//    }
 }

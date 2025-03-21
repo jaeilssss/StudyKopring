@@ -4,6 +4,7 @@ import com.market.studyboardkt.setting.common.exception.ErrorException
 import com.market.studyboardkt.setting.common.exception.enum.UserErrorEnum
 import com.market.studyboardkt.user.domain.dto.request.JwtProperties
 import com.market.studyboardkt.user.domain.dto.response.JwtTokenResponse
+import com.market.studyboardkt.user.domain.entity.User
 import com.market.studyboardkt.user.domain.repository.UserRepository
 import io.jsonwebtoken.Header
 import io.jsonwebtoken.Jwts
@@ -26,6 +27,4 @@ class UserDomainServiceImpl(
             throw ErrorException(UserErrorEnum.IS_EXISTED_EMAIL.httpStatus, UserErrorEnum.IS_EXISTED_EMAIL.message)
         }
     }
-
-
 }

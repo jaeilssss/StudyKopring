@@ -6,6 +6,8 @@ import com.market.studyboardkt.setting.common.jwt.JwtProvider
 import com.market.studyboardkt.user.application.dto.request.LoginDto
 import com.market.studyboardkt.user.application.dto.request.SignUpDto
 import com.market.studyboardkt.user.application.dto.response.LoginResponseDto
+import com.market.studyboardkt.user.application.dto.response.UserInfoResponseDto
+import com.market.studyboardkt.user.application.dto.toUserInfoResponseDto
 import com.market.studyboardkt.user.domain.UserDomainService
 import com.market.studyboardkt.user.domain.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -34,9 +36,22 @@ class UserServiceImpl(
 
         user.checkPassword(request.password, passwordEncoder)
 
-        val tokenResponse = jwtProvider.createToken(user.id, user.email)
+        val tokenResponse = jwtProvider.createToken(user.id!!, user.email)
         return LoginResponseDto(tokenResponse.accessToken, tokenResponse.refreshToken)
+    }
 
+    override fun getUserInfo(userId: Long): UserInfoResponseDto {
+        val user = userRepository.findById(userId).orElseThrow {
+            ErrorException(
+                UserErrorEnum.NOT_FOUND_USER_INFO.httpStatus,
+                UserErrorEnum.NOT_FOUND_USER_INFO.message
+            )
+        }
+        return user.toUserInfoResponseDto()
+    }
+
+    override fun renewJwtToken() {
+        TODO("Not yet implemented")
     }
 
 }
