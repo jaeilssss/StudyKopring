@@ -47,7 +47,7 @@ class SwaggerConfig {
             )
             .apply {
                 // ✅ 특정 API(`/user/login`, `/user/signup`)는 보안 적용 안 함
-                servers(emptyList()) // 기본 인증 해제
+                servers(emptyList())
                 security(listOf(securityRequirement))
             }
     }

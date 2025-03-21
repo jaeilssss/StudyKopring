@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils
 class JwtAuthenticationFilter(val jwtProvider: JwtProvider) : GenericFilter() {
     override fun doFilter(servletRequest: ServletRequest?, servletResponse: ServletResponse?, filterChain: FilterChain?) {
         val token: String? = (servletRequest as? HttpServletRequest)?.let { resolveToken(it) }
-
+        println(token)
         if (token != null && jwtProvider.validateToken(token)) {
             val authentication = jwtProvider.getAuthentication(token)
             SecurityContextHolder.getContext().authentication = authentication
@@ -21,7 +21,9 @@ class JwtAuthenticationFilter(val jwtProvider: JwtProvider) : GenericFilter() {
     }
 
     private fun resolveToken(request: HttpServletRequest): String? {
+        println("@@#@#@#@#@#@#@")
         val bearToken = request.getHeader("Authorization")
+        println(bearToken)
         if (StringUtils.hasText(bearToken) && bearToken.startsWith("Bearer")) {
             return bearToken.substring(7)
         }

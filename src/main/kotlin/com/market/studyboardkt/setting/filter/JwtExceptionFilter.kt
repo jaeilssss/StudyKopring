@@ -2,6 +2,8 @@ package com.market.studyboardkt.setting.filter
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.market.studyboardkt.setting.common.exception.ErrorException
+import com.market.studyboardkt.setting.common.exception.enum.JWTErrorEnum
 import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -18,22 +20,21 @@ class JwtExceptionFilter : OncePerRequestFilter(){
         response.characterEncoding = "utf-8"
         try {
             filterChain.doFilter(request, response)
-        } catch (e: JwtException) {
+        } catch (e: ErrorException) {
             setErrorResponse(HttpStatus.UNAUTHORIZED, response, e)
         }
     }
-
-    fun setErrorResponse(status: HttpStatus, res: HttpServletResponse, ex: Throwable) {
+    private fun setErrorResponse(status: HttpStatus, res: HttpServletResponse, e: ErrorException) {
         res.status = status.value()
         res.contentType = "application/json; charset=UTF-8"
-        res.writer.write(tokenExpiredResponseToJson())
+        res.writer.write(tokenExpiredResponseToJson(e.errorMessage))
     }
 
-    private fun tokenExpiredResponseToJson(): String {
+    private fun tokenExpiredResponseToJson(message: String): String {
         val gson = Gson()
         val jsonObject = JsonObject()
-        jsonObject.addProperty("code", "Token-Expired")
-        jsonObject.addProperty("message", "토큰이 만료 되었습니다")
+        jsonObject.addProperty("code", "Token-Error")
+        jsonObject.addProperty("message", message)
         return gson.toJson(jsonObject)
     }
 }

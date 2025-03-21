@@ -1,5 +1,7 @@
 package com.market.studyboardkt.setting.common.jwt
 
+import com.market.studyboardkt.setting.common.exception.ErrorException
+import com.market.studyboardkt.setting.common.exception.enum.JWTErrorEnum
 import com.market.studyboardkt.user.domain.dto.request.JwtProperties
 import com.market.studyboardkt.user.domain.dto.response.JwtTokenResponse
 import io.jsonwebtoken.*
@@ -48,21 +50,37 @@ class JwtProvider(val jwtProperties: JwtProperties) {
     }
     fun validateToken(token: String): Boolean {
         try {
-            Jwts.parserBuilder().setSigningKey(getKey(jwtProperties.secretKey))
-        }catch (e: Exception) {
+            Jwts.parserBuilder().setSigningKey(getKey(jwtProperties.secretKey)).build().parseClaimsJws(token)
+            return true
+        } catch (e: Exception) {
             when(e) {
                 is io.jsonwebtoken.security.SecurityException, is MalformedJwtException ->{
                     println("Invalid JWT Token")
+                    throw ErrorException(
+                        JWTErrorEnum.INVALID_JWT_EXCEPTION.httpStatus,
+                        JWTErrorEnum.INVALID_JWT_EXCEPTION.message
+                    )
                 }
-                is ExpiredJwtException ->{
+                is ExpiredJwtException -> {
                     println("Expired JWT token")
-                    throw JwtException("error")
+                    throw ErrorException(
+                        JWTErrorEnum.EXPIRED_JWT_EXCEPTION.httpStatus,
+                        JWTErrorEnum.EXPIRED_JWT_EXCEPTION.message
+                    )
                 }
                 is UnsupportedJwtException -> {
                     println("UnsupportedJwtException")
+                    throw ErrorException(
+                        JWTErrorEnum.UNSUPPORTED_JWT_EXCEPTION.httpStatus,
+                        JWTErrorEnum.UNSUPPORTED_JWT_EXCEPTION.message
+                    )
                 }
                 is IllegalArgumentException -> {
                     println("JWT Claims string is empty")
+                    throw ErrorException(
+                        JWTErrorEnum.ILLEGAL_JWT_EXCEPTION.httpStatus,
+                        JWTErrorEnum.ILLEGAL_JWT_EXCEPTION.message
+                    )
                 }
             }
         }
