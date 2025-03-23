@@ -38,6 +38,7 @@ class JwtProvider(val jwtProperties: JwtProperties) {
 
         val refreshToken = Jwts.builder()
             .setExpiration(refreshExpiration)
+            .claim("userId", userId)
             .signWith(SignatureAlgorithm.HS256, getKey(jwtProperties.secretKey))
             .compact()
 

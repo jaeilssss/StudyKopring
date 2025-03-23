@@ -2,6 +2,8 @@ package com.market.studyboardkt.user.presentation
 
 import com.market.studyboardkt.setting.common.annotation.DisableSwaggerSecurity
 import com.market.studyboardkt.setting.common.controller.BaseResponse
+import com.market.studyboardkt.setting.common.exception.ErrorException
+import com.market.studyboardkt.setting.common.exception.enum.JWTErrorEnum
 import com.market.studyboardkt.user.application.UserService
 import com.market.studyboardkt.user.application.dto.request.LoginDto
 import com.market.studyboardkt.user.application.dto.response.LoginResponseDto
@@ -62,10 +64,21 @@ class UserController(
         return BaseResponse("Ok", result)
     }
 
-//    @PostMapping("/refresh/renew")
-//    @DisableSwaggerSecurity
-//    @Operation(summary = "토큰 재발급 API", description = "refresh Token 을 이용한 토큰 재발급")
-//    fun renewJwtToken(@RequestBody refreshToken: String) : BaseResponse<LoginResponseDto> {
-//
-//    }
+    @PostMapping("/refresh/renew")
+    @DisableSwaggerSecurity
+    @Operation(summary = "토큰 재발급 API", description = "refresh Token 을 이용한 토큰 재발급")
+    fun renewJwtToken(request: HttpServletRequest) : BaseResponse<LoginResponseDto> {
+        val refreshToken = extractRefreshTokenFromCookies(request)
+            ?: throw ErrorException(
+                JWTErrorEnum.NOT_CONTAIN_REFRESH_TOKEN.httpStatus,
+                JWTErrorEnum.NOT_CONTAIN_REFRESH_TOKEN.message
+            )
+        val result = userService.renewJwtToken(refreshToken)
+
+        return BaseResponse("Ok", result)
+    }
+
+    private fun extractRefreshTokenFromCookies(request: HttpServletRequest) : String? {
+        return request.cookies?.firstOrNull { it.name == "refreshToken" }?.value
+    }
 }

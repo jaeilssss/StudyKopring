@@ -50,8 +50,10 @@ class UserServiceImpl(
         return user.toUserInfoResponseDto()
     }
 
-    override fun renewJwtToken() {
-        TODO("Not yet implemented")
+    override fun renewJwtToken(refreshToken: String): LoginResponseDto {
+        jwtProvider.validateToken(refreshToken)
+        return LoginResponseDto("","")
     }
+
 
 }

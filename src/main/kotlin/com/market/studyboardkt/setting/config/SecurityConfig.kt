@@ -34,7 +34,8 @@ class SecurityConfig(val jwtProvider: JwtProvider) {
                     "/v3/api-docs/**",   // OpenAPI 문서 JSON
                     "/swagger-ui/**",    // Swagger UI 정적 파일
                     "/user/signup",
-                    "/user/login"
+                    "/user/login",
+                    "/user/refresh/renew"
                 ).permitAll()
                 it.anyRequest().authenticated()
             }

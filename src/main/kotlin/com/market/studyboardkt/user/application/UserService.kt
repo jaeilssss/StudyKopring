@@ -10,5 +10,5 @@ interface UserService {
     fun signUp(request: SignUpDto)
     fun login(request: LoginDto): LoginResponseDto
     fun getUserInfo(userId: Long): UserInfoResponseDto
-    fun renewJwtToken()
+    fun renewJwtToken(refreshToken: String): LoginResponseDto
 }
