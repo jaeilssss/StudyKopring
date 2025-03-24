@@ -42,18 +42,18 @@ class UserServiceImpl(
     }
 
     override fun getUserInfo(userId: Long): UserInfoResponseDto {
-        val user = findUserInfo(userId)
+        val user = findByUserIdOrThrow(userId)
         return user.toUserInfoResponseDto()
     }
 
     override fun renewJwtToken(refreshToken: String): LoginResponseDto {
         jwtProvider.validateToken(refreshToken)
-        val user = findUserInfo(jwtProvider.getUserIdByToken(refreshToken))
+        val user = findByUserIdOrThrow(jwtProvider.getUserIdByToken(refreshToken))
         val tokenResponse = jwtProvider.createToken(user.id!!, user.email)
         return LoginResponseDto(tokenResponse.accessToken,tokenResponse.refreshToken)
     }
 
-    private fun findUserInfo(userId: Long): User {
+    private fun findByUserIdOrThrow(userId: Long): User {
         return userRepository.findById(userId).orElseThrow {
             ErrorException(
                 UserErrorEnum.NOT_FOUND_USER_INFO.httpStatus,
@@ -61,6 +61,4 @@ class UserServiceImpl(
             )
         }
     }
-
-
 }
