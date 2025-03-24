@@ -47,13 +47,7 @@ class UserController(
     @Operation(summary = "로그인 API", description ="로그인 API")
     fun login(httpResponse: HttpServletResponse, @RequestBody loginRequest: LoginRequest) : BaseResponse<LoginResponseDto> {
         val result = userService.login(LoginDto(loginRequest.email, loginRequest.password))
-        val cookie = Cookie("refreshToken", result.refreshToken).apply {
-            isHttpOnly = true
-            secure = true
-            path = "/"
-            maxAge = jwtProperties.refreshExpiration.toInt()
-        }
-        httpResponse.addCookie(cookie)
+        httpResponse.addCookie(createCookieToInsertRefreshToken(result.refreshToken))
         return BaseResponse("OK", result)
     }
 
@@ -67,18 +61,26 @@ class UserController(
     @PostMapping("/refresh/renew")
     @DisableSwaggerSecurity
     @Operation(summary = "토큰 재발급 API", description = "refresh Token 을 이용한 토큰 재발급")
-    fun renewJwtToken(request: HttpServletRequest) : BaseResponse<LoginResponseDto> {
+    fun renewJwtToken(request: HttpServletRequest, response: HttpServletResponse) : BaseResponse<LoginResponseDto> {
         val refreshToken = extractRefreshTokenFromCookies(request)
             ?: throw ErrorException(
                 JWTErrorEnum.NOT_CONTAIN_REFRESH_TOKEN.httpStatus,
                 JWTErrorEnum.NOT_CONTAIN_REFRESH_TOKEN.message
             )
         val result = userService.renewJwtToken(refreshToken)
-
+        response.addCookie(createCookieToInsertRefreshToken(result.refreshToken))
         return BaseResponse("Ok", result)
     }
 
     private fun extractRefreshTokenFromCookies(request: HttpServletRequest) : String? {
         return request.cookies?.firstOrNull { it.name == "refreshToken" }?.value
     }
+
+    private fun createCookieToInsertRefreshToken(refreshToken: String) : Cookie =
+        Cookie("refreshToken", refreshToken).apply {
+            isHttpOnly = true
+            secure = true
+            path = "/"
+            maxAge = jwtProperties.refreshExpiration.toInt()
+        }
 }

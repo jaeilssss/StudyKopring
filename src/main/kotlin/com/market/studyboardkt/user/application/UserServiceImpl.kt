@@ -9,6 +9,7 @@ import com.market.studyboardkt.user.application.dto.response.LoginResponseDto
 import com.market.studyboardkt.user.application.dto.response.UserInfoResponseDto
 import com.market.studyboardkt.user.application.dto.toUserInfoResponseDto
 import com.market.studyboardkt.user.domain.UserDomainService
+import com.market.studyboardkt.user.domain.entity.User
 import com.market.studyboardkt.user.domain.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -41,18 +42,24 @@ class UserServiceImpl(
     }
 
     override fun getUserInfo(userId: Long): UserInfoResponseDto {
-        val user = userRepository.findById(userId).orElseThrow {
-            ErrorException(
-                UserErrorEnum.NOT_FOUND_USER_INFO.httpStatus,
-                UserErrorEnum.NOT_FOUND_USER_INFO.message
-            )
-        }
+        val user = findUserInfo(userId)
         return user.toUserInfoResponseDto()
     }
 
     override fun renewJwtToken(refreshToken: String): LoginResponseDto {
         jwtProvider.validateToken(refreshToken)
-        return LoginResponseDto("","")
+        val user = findUserInfo(jwtProvider.getUserIdByToken(refreshToken))
+        val tokenResponse = jwtProvider.createToken(user.id!!, user.email)
+        return LoginResponseDto(tokenResponse.accessToken,tokenResponse.refreshToken)
+    }
+
+    private fun findUserInfo(userId: Long): User {
+        return userRepository.findById(userId).orElseThrow {
+            ErrorException(
+                UserErrorEnum.NOT_FOUND_USER_INFO.httpStatus,
+                UserErrorEnum.NOT_FOUND_USER_INFO.message
+            )
+        }
     }
 
 

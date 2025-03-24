@@ -103,6 +103,14 @@ class JwtProvider(val jwtProperties: JwtProperties) {
         return UsernamePasswordAuthenticationToken(claims["userId"], "", authorities)
     }
 
+    fun getUserIdByToken(token: String): Long {
+        val claims = parse(token)
+        if(claims["userId"] == null) {
+            throw RuntimeException("권한 정보가 없는 토큰 입니다.")
+        }
+
+        return claims["userId"].toString().toLong()
+    }
     fun parse(token: String): Claims {
         return try {
             Jwts.parserBuilder()
