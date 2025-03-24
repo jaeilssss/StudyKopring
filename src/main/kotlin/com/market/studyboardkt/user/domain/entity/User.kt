@@ -1,6 +1,8 @@
 package com.market.studyboardkt.user.domain.entity
 import jakarta.persistence.*
 import lombok.NoArgsConstructor
+import org.hibernate.annotations.DialectOverride.Wheres
+import org.hibernate.annotations.Where
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -10,7 +12,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener::class)
-
+@Where(clause = "is_deleted = false")
 class User(
      @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
      @Column(name = "user_id")
@@ -39,5 +41,13 @@ class User(
      @LastModifiedDate
      lateinit var updatedDate: LocalDateTime
 
+     fun delete() {
+          this.isDeleted = true
+     }
+
+     fun modify(nickName: String, phoneNumber: String) {
+          this.nickName = nickName
+          this.phoneNumber = phoneNumber
+     }
      fun checkPassword(rawPassword: String, encoder: PasswordEncoder) = encoder.matches(rawPassword, password)
 }

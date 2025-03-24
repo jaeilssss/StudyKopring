@@ -24,6 +24,6 @@ data class SignUpDto(
         birthDay = birthDay,
         nickName = nickName,
         address = address,
-        id = 0
+        isDeleted = false
     )
 }

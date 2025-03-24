@@ -4,6 +4,7 @@ import com.market.studyboardkt.setting.common.exception.ErrorException
 import com.market.studyboardkt.setting.common.exception.enum.UserErrorEnum
 import com.market.studyboardkt.setting.common.jwt.JwtProvider
 import com.market.studyboardkt.user.application.dto.request.LoginDto
+import com.market.studyboardkt.user.application.dto.request.ModifyUserInfoDto
 import com.market.studyboardkt.user.application.dto.request.SignUpDto
 import com.market.studyboardkt.user.application.dto.response.LoginResponseDto
 import com.market.studyboardkt.user.application.dto.response.UserInfoResponseDto
@@ -13,14 +14,18 @@ import com.market.studyboardkt.user.domain.entity.User
 import com.market.studyboardkt.user.domain.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class UserServiceImpl(
     private val userDomainService: UserDomainService,
     private val userRepository: UserRepository,
     private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder
 ) : UserService {
+
+    @Transactional
     override fun signUp(request: SignUpDto) {
         userDomainService.isExistedEmail(request.email)
         userRepository.save(
@@ -30,7 +35,7 @@ class UserServiceImpl(
         }
     }
 
-    override fun login(request: LoginDto): LoginResponseDto{
+    override fun login(request: LoginDto): LoginResponseDto {
         val user = userRepository.findByEmail(request.email).orElseThrow {
             ErrorException(UserErrorEnum.NOT_FOUND_USER_INFO.httpStatus, UserErrorEnum.NOT_FOUND_USER_INFO.message)
         }
@@ -51,6 +56,18 @@ class UserServiceImpl(
         val user = findByUserIdOrThrow(jwtProvider.getUserIdByToken(refreshToken))
         val tokenResponse = jwtProvider.createToken(user.id!!, user.email)
         return LoginResponseDto(tokenResponse.accessToken,tokenResponse.refreshToken)
+    }
+
+    @Transactional
+    override fun deleteUser(userId: Long) {
+        val user = findByUserIdOrThrow(userId)
+        user.delete()
+    }
+
+    @Transactional
+    override fun modifyUserInfo(request: ModifyUserInfoDto) {
+        val user = findByUserIdOrThrow(request.userId)
+        user.modify(request.nickName, request.phoneNumber)
     }
 
     private fun findByUserIdOrThrow(userId: Long): User {
