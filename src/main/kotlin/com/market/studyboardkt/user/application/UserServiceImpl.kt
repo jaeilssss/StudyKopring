@@ -39,7 +39,6 @@ class UserServiceImpl(
         val user = userRepository.findByEmail(request.email).orElseThrow {
             ErrorException(UserErrorEnum.NOT_FOUND_USER_INFO.httpStatus, UserErrorEnum.NOT_FOUND_USER_INFO.message)
         }
-
         user.checkPassword(request.password, passwordEncoder)
 
         val tokenResponse = jwtProvider.createToken(user.id!!, user.email)

@@ -1,4 +1,4 @@
-package com.market.studyboardkt.category.domain
+package com.market.studyboardkt.category.domain.entity
 
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
@@ -14,11 +14,10 @@ class Category(
     @Column(name = "category_id")
     var id: Long? = null,
     var name: String,
-    var depth: Int,
     @ManyToOne(fetch = FetchType.LAZY)
-    var category: Category?,
+    var parent: Category? = null,
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-    var children: List<Category>
+    var children: List<Category>? = null
 ) {
     @CreatedDate
     @Column(updatable = false)
