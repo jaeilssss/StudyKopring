@@ -1,5 +1,6 @@
 package com.market.studyboardkt.category.application
 
+import com.market.studyboardkt.category.application.dto.request.ModifyCategoryDto
 import com.market.studyboardkt.category.application.dto.request.RegisterCategoryDto
 import com.market.studyboardkt.category.application.dto.response.CategoryListResponseDto
 import com.market.studyboardkt.category.domain.entity.Category
@@ -18,15 +19,34 @@ class CategoryServiceImpl(private val repository: CategoryRepository) : Category
 
     @Transactional
     override fun registerCategory(request: RegisterCategoryDto) {
-        val parentCategory = request.parentCategory?.let { getCategory(it) }
+        val parentCategory = request.parentCategory?.let { getParentCategory(it) }
 
         repository.save(request.toEntity(parentCategory))
     }
 
-    private fun getCategory(id: Long): Category = repository.findById(id).orElseThrow {
+    @Transactional
+    override fun modifyCategory(request: ModifyCategoryDto) {
+        val category = getParentCategory(request.categoryId)
+
+        val parent = request.parentId?.let {
+            getCategory(it)
+        }
+        category.modify(parent, request)
+
+    }
+
+    private fun getParentCategory(id: Long): Category = repository.findById(id).orElseThrow {
         ErrorException(
             CategoryErrorEnum.NOT_FOUND_PARENT_CATEGORY.httpStatus,
             CategoryErrorEnum.NOT_FOUND_PARENT_CATEGORY.message
         )
     }
+
+    private fun getCategory(id: Long) : Category = repository.findById(id).orElseThrow {
+        ErrorException(
+            CategoryErrorEnum.NOT_FOUND_CATEGORY.httpStatus,
+            CategoryErrorEnum.NOT_FOUND_CATEGORY.message
+        )
+    }
+
 }
