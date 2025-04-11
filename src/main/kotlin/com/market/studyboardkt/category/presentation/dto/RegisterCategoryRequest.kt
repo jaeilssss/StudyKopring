@@ -4,7 +4,7 @@ import com.market.studyboardkt.category.application.dto.request.RegisterCategory
 
 class RegisterCategoryRequest(
     val name: String,
-    val parentCategory: Long? = null,
+    val parentCategory: Long?
 
 ){
 
