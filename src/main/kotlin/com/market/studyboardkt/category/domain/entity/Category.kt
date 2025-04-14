@@ -1,5 +1,6 @@
 package com.market.studyboardkt.category.domain.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.market.studyboardkt.category.application.dto.request.ModifyCategoryDto
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete

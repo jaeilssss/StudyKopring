@@ -9,4 +9,6 @@ interface CategoryRepository {
     fun save(category: Category): Optional<Category>
     @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.children WHERE c.parent IS NULL")
     fun findAllByParentIsNull(): List<Category>?
+    @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parent")
+    fun findAll(): MutableList<Category>?
 }

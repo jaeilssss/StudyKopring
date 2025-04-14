@@ -18,12 +18,21 @@ import kotlin.streams.toList
 class CategoryServiceImpl(private val repository: CategoryRepository) : CategoryService {
 
     override fun getCategoryList(): AllCategoryListResponseDto? {
-        val categoryList = repository.findAllByParentIsNull()
-
-        return categoryList?.let {
-            AllCategoryListResponseDto(it.stream().map { it.toCategoryResponseDto() }.toList())
+        val categoryList = repository.findAll()
+        val resultNode : MutableMap<Long, MutableList<CategoryResponseDto>> = mutableMapOf()
+        val result : MutableList<CategoryResponseDto> = mutableListOf()
+        categoryList?.stream()?.map {
+            if(it.parent != null) {
+                resultNode[it.parent!!.id]?.add(
+                    
+                )
+            }
         }
+
+
     }
+
+
 
     @Transactional
     override fun registerCategory(request: RegisterCategoryDto) {
