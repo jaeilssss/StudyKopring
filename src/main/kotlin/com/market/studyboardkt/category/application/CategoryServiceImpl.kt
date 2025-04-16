@@ -19,17 +19,13 @@ class CategoryServiceImpl(private val repository: CategoryRepository) : Category
 
     override fun getCategoryList(): AllCategoryListResponseDto? {
         val categoryList = repository.findAll()
-        val resultNode : MutableMap<Long, MutableList<CategoryResponseDto>> = mutableMapOf()
         val result : MutableList<CategoryResponseDto> = mutableListOf()
-        categoryList?.stream()?.map {
-            if(it.parent != null) {
-                resultNode[it.parent!!.id]?.add(
-                    
-                )
-            }
+
+        categoryList.stream().forEach {
+            if(it.parent == null) result.add(it.toCategoryResponseDto())
         }
-
-
+        
+        return AllCategoryListResponseDto(result)
     }
 
 
