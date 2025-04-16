@@ -9,4 +9,5 @@ interface CategoryService {
     fun getCategoryList(): AllCategoryListResponseDto?
     fun registerCategory(request: RegisterCategoryDto)
     fun modifyCategory(request: ModifyCategoryDto)
+    fun deleteCategory(categoryId: Long)
 }

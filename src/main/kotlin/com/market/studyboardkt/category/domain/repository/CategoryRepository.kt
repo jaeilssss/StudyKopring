@@ -10,11 +10,11 @@ interface CategoryRepository {
     @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.children WHERE c.parent IS NULL")
     fun findAllByParentIsNull(): List<Category>?
     @Query("""
-    SELECT DISTINCT c
-    FROM Category c
-    LEFT JOIN FETCH c.parent
-    LEFT JOIN FETCH c.children
-""")
+        SELECT DISTINCT c
+        FROM Category c
+        LEFT JOIN FETCH c.parent
+        LEFT JOIN FETCH c.children
+    """)
     fun findAll(): List<Category>
-
+    fun delete(category: Category)
 }

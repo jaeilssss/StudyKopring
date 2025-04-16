@@ -34,5 +34,10 @@ class CategoryController(val categoryService: CategoryService) {
         return BaseResponse("OK", "해당 카테고리 수정을 완료 했습니다.")
     }
 
-
+    @DeleteMapping("/delete/category/{categoryId}")
+    @Operation(summary = "카테고리 삭제 API")
+    fun deleteCategory(@PathVariable categoryId: Long): BaseResponse<String> {
+        categoryService.deleteCategory(categoryId)
+        return BaseResponse("ok", "카테고리가 삭제됐습니다.")
+    }
 }

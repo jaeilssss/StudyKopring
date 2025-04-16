@@ -24,11 +24,9 @@ class CategoryServiceImpl(private val repository: CategoryRepository) : Category
         categoryList.stream().forEach {
             if(it.parent == null) result.add(it.toCategoryResponseDto())
         }
-        
+
         return AllCategoryListResponseDto(result)
     }
-
-
 
     @Transactional
     override fun registerCategory(request: RegisterCategoryDto) {
@@ -43,6 +41,12 @@ class CategoryServiceImpl(private val repository: CategoryRepository) : Category
             getCategory(it)
         }
         category.modify(parent, request)
+    }
+
+    @Transactional
+    override fun deleteCategory(categoryId: Long) {
+        val category = getCategory(categoryId)
+        repository.delete(category)
     }
 
     private fun getParentCategory(id: Long): Category = repository.findById(id).orElseThrow {
